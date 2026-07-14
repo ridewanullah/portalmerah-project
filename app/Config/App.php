@@ -441,6 +441,30 @@ class App extends BaseConfig
      *
      * @var string
      */
+
+    /**
+     * --------------------------------------------------------------------------
+     * Allowed Hostnames
+     * --------------------------------------------------------------------------
+     *
+     * This is an array of hostnames that are allowed for incoming requests.
+     * Leave it empty to allow any hostname.
+     *
+     * @var list<string>
+     */
+    public array $allowedHostnames = [];
+
+    /**
+     * --------------------------------------------------------------------------
+     * Permitted URI Characters
+     * --------------------------------------------------------------------------
+     *
+     * Restricts the characters allowed within your application URLs.
+     *
+     * @var string
+     */
+    public string $permittedURIChars = 'a-z 0-9~%.:_\-';
+
     public $CSRFSameSite = 'Lax';
 
     /**
