@@ -8,10 +8,7 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Clear out any previous incomplete seed users to prevent username/email duplicate crashes
-        $this->db->table('users')->whereIn('username', ['admin', 'author'])->delete();
-
-        // 2. Prepare User Data
+        // 1. Define your data with Myth Auth's specific password hashing requirements
         $users = [
             [
                 'email'         => 'amin@example.com',
@@ -31,18 +28,24 @@ class UserSeeder extends Seeder
             ]
         ];
 
-        // 3. Insert Users safely
+        // 2. Extract identifiers to automatically clear stale records
+        $usernames = array_column($users, 'username');
+        $emails    = array_column($users, 'email');
+
+        // 3. Prevent duplicate crashes by purging conflicts before insertion
+        $this->db->table('users')->whereIn('username', $usernames)->orWhereIn('email', $emails)->delete();
+
+        // 4. Safe insert
         $this->db->table('users')->insertBatch($users);
 
-        // 4. Fetch the real auto-incremented IDs of the users we just made
-        $adminUser  = $this->db->table('users')->where('username', 'admin')->get()->getRow();
-        $authorUser = $this->db->table('users')->where('username', 'author')->get()->getRow();
+        // 5. Retrieve the structural database auto-incremented object rows
+        $adminUser  = $this->db->table('users')->where('username', 'amin')->get()->getRow();
+        $authorUser = $this->db->table('users')->where('username', 'aman')->get()->getRow();
 
-        // 5. Fetch existing group IDs safely instead of blindly inserting hardcoded IDs
+        // 6. Find or create authentication group identities safely
         $adminGroup  = $this->db->table('auth_groups')->where('name', 'admin')->get()->getRow();
         $authorGroup = $this->db->table('auth_groups')->where('name', 'author')->get()->getRow();
 
-        // 6. Create groups ONLY if they don't exist yet
         if (!$adminGroup) {
             $this->db->table('auth_groups')->insert(['name' => 'admin', 'description' => 'Administrator Access']);
             $adminGroup = $this->db->table('auth_groups')->where('name', 'admin')->get()->getRow();
@@ -52,10 +55,10 @@ class UserSeeder extends Seeder
             $authorGroup = $this->db->table('auth_groups')->where('name', 'author')->get()->getRow();
         }
 
-        // 7. Clear old relational ties to prevent unique key constraints
+        // 7. Wipe previous group mappings for these specific records
         $this->db->table('auth_groups_users')->whereIn('user_id', [$adminUser->id, $authorUser->id])->delete();
 
-        // 8. Assign Users to Groups using real fetched structural IDs
+        // 8. Remap relations
         $groupUsers = [
             ['group_id' => $adminGroup->id, 'user_id' => $adminUser->id],
             ['group_id' => $authorGroup->id, 'user_id' => $authorUser->id],
