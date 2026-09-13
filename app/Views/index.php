@@ -460,7 +460,7 @@
                                     </a>
                                     <div class="what-cap" style="height: 175px;">
                                         <span class="color1"><?= $data['kategori_nama']; ?></span>
-                                        <h4><a href="<?= base_url('/' . $data['link']); ?>"><?= $data['news_judul'] ;?></a></h4>
+                                        <h4><a href="<?= base_url('/' . $data['link']); ?>"><?= word_limiter($data['news_judul'], 12);?></a></h4>
                                     </div>
                                 </div>
                             <?php endforeach ?>

@@ -21,11 +21,6 @@ $routes->setDefaultController('Home');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
-// The Auto Routing (Legacy) is very dangerous. It is easy to create vulnerable apps
-// where controller filters or CSRF protection are bypassed.
-// If you don't want to define all routes, please use the Auto Routing (Improved).
-// Set `$autoRoutesImproved` to true in `app/Config/Feature.php` and set the following to true.
-// $routes->setAutoRoute(false);
 
 /*
  * --------------------------------------------------------------------
@@ -48,8 +43,6 @@ $routes->get('/elements', 'Home::elements');
 $routes->get('/latest_news', 'Home::latest_news');
 $routes->get('/latest_news/searchresult/', 'Home::searchResult');
 $routes->get('/Mag_NewsDoc', 'Home::MagNewsDoc');
-$routes->get('/(:segment)', 'Home::news/$1');
-// $routes->get('/(:segment)/(:segment)', 'Home::news/$1/$2');
 $routes->get('/news/savecomment', 'Home::saveComment');
 $routes->get('/page', 'Home::page');
 $routes->get('/termofuse/pedomanCyberMedia', 'Home::cyberMedia');
@@ -60,17 +53,6 @@ $routes->get('/author/dashboard', 'Author::dashboard', ['filter' => 'role:author
 $routes->get('/author/profile_user', 'Author::profile_user', ['filter' => 'role:author,admin']);
 $routes->get('/author/profile_setting', 'Author::profile_setting', ['filter' => 'role:author,admin']);
 $routes->post('/saveprofile', 'Author::save_profile', ['filter' => 'role:author,admin']);
-
-// $routes->get('/author/create_artikel', 'Author::create_artikel', ['filter' => 'role:author,admin']);
-// $routes->get('/author/update_artikel/(:num)', 'Author::update_artikel/$1', ['filter' => 'role:author,admin']);
-// $routes->get('/author/view_artikel', 'Author::view_artikel', ['filter' => 'role:author,admin']);
-// $routes->get('/author/manageArtikel', 'Author::manage_artikel', ['filter' => 'role:author,admin']);
-// $routes->post('/updateartikel', 'Author::update_data_artikel', ['filter' => 'role:author,admin']);
-// $routes->get('/author/manageKomen', 'Author::manage_komen', ['filter' => 'role:author,admin']);
-// $routes->get('/author/deleteArtikel/(:num)', 'Author::delete_artikel/$1', ['filter' => 'role:author,admin']);
-// $routes->get('/author/deleteKomen/(:num)', 'Author::delete_komen/$1', ['filter' => 'role:author,admin']);
-// $routes->get('/author/update_status_artikel/(:num)', 'Author::update_status_artikel/$1', ['filter' => 'role:author,admin']);
-// $routes->get('/author/update_status_komen/(:num)', 'Author::update_status_komen/$1', ['filter' => 'role:author,admin']);
 
 // Routes Management Setting Artikel (Author)
 $routes->get('/author/create_artikel', 'Author::create_artikel_author', ['filter' => 'role:author']);
@@ -97,7 +79,7 @@ $routes->get('/admin/delete_komen/(:num)', 'Admin::delete_komen/$1', ['filter' =
 $routes->get('/admin/update_status_komen/(:num)', 'Admin::update_status_komen/$1', ['filter' => 'role:admin']);
 
 // Routes Management Setting User (Admin)
-$routes->get('/admin/manage_users', 'Admin::manage_users', ['filter' => 'role:admin']);
+$routes->get('/admin/manage_users', 'Admin::manage_users');
 $routes->get('/admin/update_status_user/(:any)', 'Admin::update_status_user/$1', ['filter' => 'role:admin']);
 $routes->get('/admin/user_update/(:any)', 'Admin::user_update/$1', ['filter' => 'role:admin']);
 $routes->post('/admin/save_user_update', 'Admin::save_user_update', ['filter' => 'role:admin']);
@@ -121,21 +103,21 @@ $routes->get('/admin/manage_susunan_redaksi', 'Admin::manage_susunan_redaksi', [
 $routes->post('/admin/save_manage_susunan_redaksi', 'Admin::save_manage_susunan_redaksi', ['filter' => 'role:admin']);
 
 $routes->get('/getkategori/(:num)', 'Author::getKategoriNews/$1');
-
 $routes->resource('apikategori');
+
+// 💡 INJECT MYTH AUTH VIA COMPOSER DIRECTORY BEFORE THE CATCH-ALL ROUTE
+if (file_exists(VENDORPATH . 'myth/auth/src/Config/Routes.php')) {
+    require VENDORPATH . 'myth/auth/src/Config/Routes.php';
+}
+
+// 💡 DYNAMIC NEWS CATCH-ALL (MUST BE AT THE VERY BOTTOM SO IT DOESN'T STEAL '/login')
+$routes->get('/(:segment)', 'Home::news/$1');
+
 /*
- * --------------------------------------------------------------------
- * Additional Routing
- * --------------------------------------------------------------------
- *
- * There will often be times that you need additional routing and you
- * need it to be able to override any defaults in this file. Environment
- * based routes is one such time. require() additional route files here
- * to make that happen.
- *
- * You will have access to the $routes object within that file without
- * needing to reload it.
- */
+* --------------------------------------------------------------------
+* Additional Routing
+* --------------------------------------------------------------------
+*/
 if (is_file(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php')) {
     require APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php';
 }
