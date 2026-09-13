@@ -83,7 +83,6 @@ phpunit
 #-------------------------
 # Composer
 #-------------------------
-vendor/
 
 #-------------------------
 # IDE / Development Files
@@ -138,11 +137,15 @@ user_guide_src/cilexer/build/*
 user_guide_src/cilexer/dist/*
 user_guide_src/cilexer/pycilexer.egg-info/*
 
+#-------------------------
+# Visual Studio
+#-------------------------
+.vs/
+
 #codeigniter 3
 application/logs/*
 !application/logs/index.html
 !application/logs/.htaccess
-/vendor/
 
 # Ignore docs files
 /_site/
