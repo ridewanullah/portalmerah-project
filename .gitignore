@@ -119,6 +119,7 @@ nb-configuration.xml
 
 # Visual Studio Code
 .vscode/
+.vs/
 
 /results/
 /phpunit*.xml
@@ -192,3 +193,8 @@ Thumbs.db
 /site/node_modules
 /site/.astro
 /site/public
+
+#-------------------------
+# Front template files
+#-------------------------
+/public/Magazine_News Doc/
