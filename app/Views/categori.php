@@ -51,6 +51,9 @@
                                     <div class="row" id="konten-kategori-main">
                                         
                                     </div>
+                                    <div id="pagination-kategori" class="pagination-area mt-30">
+                                        
+                                    </div>
                                 </div>
                             </div>
                         </div>

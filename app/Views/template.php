@@ -62,11 +62,21 @@
     <link rel="stylesheet" href="<?= base_url('/assets/css/responsive.css'); ?>">
 </head>
 
-<?php if (isset($_GET['id_kategori'])) : ?>
-    <body class="bg-gradient-primary" onload="kategoriSelected(<?= $_GET['id_kategori'] ?>); kategoriSelectedMain(<?= $_GET['id_kategori'] ?>)">
-<?php else : ?>
-    <body class="bg-gradient-primary" onload="kategoriSelected(<?= $dataNewsKategori[0]['id_kategori'] ?>); kategoriSelectedMain(<?= $dataNewsKategori[0]['id_kategori'] ?>)">
-<?php endif; ?>
+<?php 
+    // Fallback logic to protect against "Undefined array key 0" crashes
+    $defaultKategoriId = 1; 
+    
+    if (isset($_GET['id_kategori'])) {
+        $selectedId = (int)$_GET['id_kategori'];
+    } elseif (isset($dataNewsKategori) && !empty($dataNewsKategori)) {
+        $selectedId = $dataNewsKategori[0]['id_kategori'] ?? $dataNewsKategori[0]['id'] ?? $defaultKategoriId;
+    } else {
+        $selectedId = $defaultKategoriId;
+    }
+?>
+
+<body class="bg-gradient-primary" onload="kategoriSelected(<?= $selectedId ?>); kategoriSelectedMain(<?= $selectedId ?>)">
+
 <!-- Preloader Start -->
 <!-- <div id="preloader-active">
         <div class="preloader d-flex align-items-center justify-content-center">
@@ -579,6 +589,7 @@
 
     async function renderKategori(url) {
         let response = await getKategori(url);
+
         let dataHtml = '';
 
         response.slice(0, 6).forEach(dataSelect => {
@@ -603,54 +614,41 @@
     }
 
     async function renderKategoriMain(url) {
-        let response = await getKategori(url);
-        let dataHtml = '';
+        try {
+            let response = await getKategori(url);
+            let targetData = Array.isArray(response) ? response : []; 
 
-        let container = $('#pagination-kategori');
-        container.pagination({
-            dataSource: response,
-            pageSize: 12,
-            callback: function(data, pagination) {
-                var dataHtml = '';
-                $.each(data, function(index, item) {
-                    // dataHtml += JSON.stringify(item);
-                    let imgSrc = window.location.origin + '/' + item.news_gambar;
-                    let urlLink = window.location.origin + '/' + item.link;
+            let contentContainer = document.getElementById("konten-kategori-main");
+            if (!contentContainer) return;
 
-                    dataHtml += `<div class="col-lg-4 col-md-4">
-                                    <div class="single-what-news mb-100">
-                                        <div class="what-img">
-                                            <img src="${imgSrc}" style="width: 100%; height: 305px; object-fit: fill; object-fit: cover;">
-                                        </div>
-                                        <div class="what-cap" style="height: 175px;">
-                                            <span class="color1">${item.kategori_nama}</span>
-                                            <h4><a href="${urlLink}">${item.news_judul}</a></h4>
-                                        </div>
+            let dataHtml = '';
+
+            targetData.slice(0, 12).forEach(item => {
+                let gambar = item.news_gambar || 'default.jpg';
+                let linkNews = item.link || '#';
+                let kategori = item.kategori_nama || 'News';
+                let judul = item.news_judul || 'Untitled';
+
+                let imgSrc = window.location.origin + '/' + gambar;
+                let urlLink = window.location.origin + '/' + linkNews;
+
+                dataHtml += `<div class="col-lg-4 col-md-4">
+                                <div class="single-what-news mb-100">
+                                    <div class="what-img">
+                                        <img src="${imgSrc}" style="width: 100%; height: 305px; object-fit: cover;">
                                     </div>
-                                </div>`;
-                });
-                $("#konten-kategori-main").html(dataHtml);
-            }
-        })
+                                    <div class="what-cap" style="height: 175px;">
+                                        <span class="color1">${kategori}</span>
+                                        <h4><a href="${urlLink}">${judul}</a></h4>
+                                   </div>
+                                </div>
+                            </div>`;
+            });
 
-        // response.forEach(dataSelect => {
-
-        //     // alert(imgSrc);
-        //     html += `<div class="col-lg-6 col-md-6">
-        //                                 <div class="single-what-news mb-100">
-        //                                     <div class="what-img">
-        //                                         <img src="${imgSrc}" alt="">
-        //                                     </div>
-        //                                     <div class="what-cap">
-        //                                         <span class="color1">${dataSelect.kategoriSelected.kategori_nama}</span>
-        //                                         <h4><a href="${urlLink}">${dataSelect.dataArtikelTerpilih.news_judul}</a></h4>
-        //                                     </div>
-        //                                 </div>
-        //                             </div>`;
-        // });
-        // for await (dataSelect of data.list) {
-        // }
-        // document.getElementById("konten-kategori-main").innerHTML = html;
+            contentContainer.innerHTML = dataHtml;
+        } catch (error) {
+            console.error("Error running renderKategoriMain:", error);
+        }
     }
 
     function kategoriSelected(data) {

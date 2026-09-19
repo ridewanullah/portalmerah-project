@@ -535,7 +535,7 @@ class Admin extends Author
 
         $data = [
             'title' => 'Manage Artikel',
-            'username' => user()->getUsername(),
+            'username' => user()->getUsername,
             'dataKomen' => $query->getResult(),
         ];
         // dd($data);

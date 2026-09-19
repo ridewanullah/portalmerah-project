@@ -41,7 +41,6 @@ class ApiKategori extends ResourceController
 
     public function show($segment = null, $id = null)
     {
-        // 💡 THE FIX: If CodeIgniter passes "show" as the first argument, 
         // fall back to the second argument ($id). If both are empty, default to category 1.
         if (!is_numeric($segment)) {
             $categoryId = !empty($id) ? (int)$id : 1;
